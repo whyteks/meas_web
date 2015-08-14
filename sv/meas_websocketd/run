@@ -1,0 +1,11 @@
+#!/bin/bash
+logfile=/var/log/meas_json/current
+staticdir=/home/fairwaves/monitoring/meas_json
+
+exec 2>&1
+
+echo "Waiting for meas service to run"
+sv start meas_json || exit 1
+
+echo "Running websocketd"
+exec /usr/bin/websocketd --staticdir=$staticdir --port=8080 tail -F $logfile

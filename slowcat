@@ -1,0 +1,12 @@
+#!/opt/local/bin/python -u
+
+import sys
+import time
+import fileinput
+
+TIMEOUT=0.7
+
+for line in fileinput.input():
+  sys.stdout.write(line)
+  time.sleep(TIMEOUT)
+

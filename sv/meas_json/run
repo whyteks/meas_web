@@ -1,0 +1,5 @@
+#!/bin/bash
+curdir=/home/fairwaves/meas_vis/monitoring/meas_json
+cd $curdir
+exec 2>&1
+exec /usr/bin/stdbuf -oL ./meas_json
