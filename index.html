@@ -248,47 +248,26 @@
 
       function format_data_row(data_row)
       {
-        var tr = data_row.append("div")
-          .attr("class", function(d,i) {
-            return "data-row " +
-              (d.active?"data-row-active" : "data-row-inactive"); });
+        var tr = data_row.append("div");
 
-        ['name', 'imsi', 'duration', 'age'].forEach(function(k) {
+        ['name', 'imsi', 'duration', 'age', 'direction',
+         'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(k) {
           tr.append("div")
             .attr("class", "cell")
-            .attr("id", "meas-" + k)
-            .text(function(d) { return d[k]; });
+            .attr("id", "meas-" + k);
         });
 
-        tr.append("div")
-          .attr("class", "cell")
-          .attr("id", "meas-direction")
+        tr.select('#meas-direction')
           .html("UL<br/>DL");
 
-        var bar_tr = tr.append("div")
+        var bar_tr = tr.select('#meas-level')
           .attr("style", 'width: ' + (MAXW + 20) + 'px')
-          .attr("class", "cell chart");
+          .classed("chart", true);
 
         ['UL', 'DL'].forEach(function(k) {
           bar_tr.append("div")
-            .attr("class", function(d) { return k === 'UL'? "uplink bar" : "downlink bar";})
-            .attr("id", "meas-L-"+k)
-            .style("width", function(d) {return Math.abs(Math.round(xScale(d.meas_rep[k+'_MEAS']['RXL-FULL']))) + 'px'})
-            .text(function(d) { return d.meas_rep[k+'_MEAS']['RXL-FULL']; });
-        });
-
-        tr.append("div")
-          .attr("class", "cell")
-          .attr("id", "meas-Q")
-          .html(function(d) { return d.meas_rep['UL_MEAS']['RXQ-FULL'] +
-                                     "<br/>" +
-                                     d.meas_rep['DL_MEAS']['RXQ-FULL']});
-
-        ['L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(k) {
-          tr.append("div")
-            .attr("class", "cell")
-            .attr("id", "meas-" + k)
-            .text(function(d) { return d.meas_rep[k]; });
+            .attr("class", k === 'UL'? "uplink bar" : "downlink bar")
+            .attr("id", "meas-L-"+k);
         });
 
         return true;
@@ -348,10 +327,10 @@
           .selectAll(".data-row")
           .data(data)
 
-        imsis.each(update_data_row);
-
         imsis.enter()
           .call(format_data_row);
+
+        imsis.each(update_data_row);
 
         imsis.exit().remove();
       }
