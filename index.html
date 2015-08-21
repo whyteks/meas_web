@@ -188,6 +188,8 @@
           "RXL-FULL" : MINPWR
         };
 
+        // Find an existing row with the same IMSI if it exists
+        // to update it. Otherwise we'll create a new entry.
         if (new_row && new_row['meas_rep'] && (new_row['meas_rep']['DL_MEAS'] || new_row['meas_rep']['UL_MEAS'])) {
           var cur_idx = null;
           data.forEach(function(d, i) {
@@ -196,10 +198,13 @@
             }
           });
 
+          // DL and UL measurement elements are optional, so we set
+          // them to a resonable default if they are not present.
           ['DL_MEAS', 'UL_MEAS'].forEach(function(link_type) {
             if (!new_row['meas_rep'][link_type]) { new_row['meas_rep'][link_type] = default_values; }
           });
 
+          // Set internal variables and update/insert new data row.
           new_row['age'] = 0;
           new_row['active'] = true;
           if (cur_idx === null) {
