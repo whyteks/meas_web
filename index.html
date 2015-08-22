@@ -99,6 +99,8 @@
       <div class="table-heading">
         <div class="cell"><p>Name</p></div>
         <div class="cell sortby" onClick="paramSortBy('imsi');"><p><small id="imsi" class="sortby-inactive">▼</small>IMSI</p></div>
+        <div class="cell"><p>Type</p></div>
+        <div class="cell"><p>Channel</p></div>
         <div class="cell"><p>Duration</p></div>
         <div class="cell sortby" onClick="paramSortBy('age');"><p><small id="age" class="sortby-active">▼</small>Age</p></div>
         <div class="cell"><p> </p></div>
@@ -250,7 +252,7 @@
       {
         var tr = data_row.append("div");
 
-        ['name', 'imsi', 'duration', 'age', 'direction',
+        ['name', 'imsi', 'chan-type', 'chan-id', 'duration', 'age', 'direction',
          'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(k) {
           tr.append("div")
             .attr("class", "cell")
@@ -283,10 +285,24 @@
       }
 
 
+      function format_chan_id(d)
+      {
+        var chan_id = "bts "+d.chan_info['bts_nr']+
+                      " trx " +d.chan_info['trx_nr']+"<br/>"+
+                      "ts "+d.chan_info['ts_nr'];
+
+        // There is only one sub-slot in TCH/F
+        if (d.chan_info['pchan_type'] != "TCH/F")
+          chan_id += " ss "+d.chan_info['ss_nr'];
+
+        return chan_id
+      }
+
+
       function update_data_row(el, i) {
         var cur_el = d3.select(this)
           .attr("class", function(d) {
-            var classet = ["data-row ", 
+            var classet = ["data-row ",
               (d.active? "data-row-active" : "data-row-inactive")];
             if (selected_imsi === d.imsi) { classet.push("row-selected"); }
             return classet.join(" ");
@@ -298,6 +314,12 @@
           cur_el.select('#meas-' + id)
             .text(function(d) { return el[id]; })
         });
+
+        cur_el.select("#meas-chan-id")
+          .html(function(d) { return d['chan_info']?format_chan_id(d):""; });
+
+        cur_el.select("#meas-chan-type")
+          .text(function(d) { return d['chan_info']?d.chan_info["lchan_type"]:""; });
 
         ['UL', 'DL'].forEach(function(k) {
           L = el.meas_rep[k+'_MEAS']['RXL-FULL'];
