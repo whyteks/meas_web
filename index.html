@@ -374,7 +374,11 @@
           }
           if (!a.active && !b.active) {
             if (SORT_ITEMS_BY === 'age') {
-              return d3.descending(a.time, b.time);
+              if (a.time === b.time) {
+                return d3.ascending(a.imsi, b.imsi);
+              } else {
+                return d3.descending(a.time, b.time);
+              }
             } else {
               return d3.ascending(a.imsi, b.imsi);
             }
