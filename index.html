@@ -250,7 +250,8 @@
 
       function format_data_row(data_row)
       {
-        var tr = data_row.append("div");
+        var tr = data_row.append("div")
+          .attr("class", "data-row");
 
         ['name', 'imsi', 'chan-type', 'chan-id', 'duration', 'age', 'direction',
          'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(k) {
@@ -301,12 +302,9 @@
 
       function update_data_row(el, i) {
         var cur_el = d3.select(this)
-          .attr("class", function(d) {
-            var classet = ["data-row ",
-              (d.active? "data-row-active" : "data-row-inactive")];
-            if (selected_imsi === d.imsi) { classet.push("row-selected"); }
-            return classet.join(" ");
-          })
+          .classed("data-row-active", function(d) { return d.active; })
+          .classed("data-row-inactive", function(d) { return !d.active; })
+          .classed("row-selected", function(d) { return selected_imsi === d.imsi; })
           .attr("id", function(d) { return 'imsi-' + d.imsi; })
           .on("click", function(d,i) { setSelected(d.imsi); });
 
