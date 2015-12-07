@@ -1,0 +1,14 @@
+Source: fairwaves-meas-web
+Section: contrib/comm
+Priority: extra
+Maintainer: Alexander Nikolaev <variomap@gmail.com>
+Build-Depends: debhelper (>= 9.0.0~)
+Standards-Version: 3.9.5
+
+Package: fairwaves-meas-web
+Architecture: all
+Depends: ${misc:Depends},
+  websocketd,
+  osmocom-meas-utils,
+  runsv
+Description: Web gui for osmocom's meas_json utility
