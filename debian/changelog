@@ -1,3 +1,9 @@
+fairwaves-meas-web (0.0.2) experimental; urgency=low
+
+  * Corrected dependency name (runsv -> runit)
+
+ -- Alexander Nikolaev <variomap@gmail.com>  Wed, 23 Mar 2016 17:48:00 +0300
+
 fairwaves-meas-web (0.0.1) experimental; urgency=low
 
   * First packaged version

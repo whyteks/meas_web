@@ -10,5 +10,5 @@ Architecture: all
 Depends: ${misc:Depends},
   websocketd,
   osmocom-meas-utils,
-  runsv
+  runit
 Description: Web gui for osmocom's meas_json utility
