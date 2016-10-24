@@ -1,3 +1,9 @@
+fairwaves-meas-web (0.0.3) experimental; urgency=low
+
+  * debian: don't fail install on failed runit restart
+
+ -- Kirill Zakharenko <earwin@gmail.com>  Mon, 24 Oct 2016 17:24:39 +0530
+
 fairwaves-meas-web (0.0.2) experimental; urgency=low
 
   * Corrected dependency name (runsv -> runit)
