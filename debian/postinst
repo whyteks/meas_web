@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     configure)
-      sv restart meas_json meas_websocketd
+      sv restart meas_json meas_websocketd || true
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
