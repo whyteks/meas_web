@@ -2,6 +2,7 @@
   <head>
     <script src="./js/d3.min.js"></script>
     <style type="text/css">
+
       .chart div {
         font: 11px sans-serif;
         text-align: right;
@@ -81,14 +82,15 @@
         padding-right: 5px;
       }
 
+
     </style>
   </head>
   <body>
       <div>
         maximum items:
         <select name="maxitems" id="maxitems" onchange="paramMaxItems(this.value)">
-          <option value="10">10</option>
-          <option value="20" selected="1">20</option>
+          <option value="10" selected >10</option>
+          <option value="20">20</option>
           <option value="50">50</option>
         </select>
       </div>
@@ -109,19 +111,25 @@
         <div class="cell"><p>PWR</p></div>
         <div class="cell"><p>TA</p></div>
         <div class="cell"><p>NR</p></div>
-      </div>
+	<div class="cell"><p>242</p></div>
+	<div class="cell"><p>246</p></div>
+	<div class="cell"><p>249</p></div>
+	<div class="cell"><p>251</p></div>
+
+     </div>
     </div>
+
 
     <script language="javascript">
       <!--
-      var MAXW = 500;
-      var MAXPWR = -20;
+      var MAXW = 300;
+      var MAXPWR = -45;
       var MINPWR = -120;
 
-      var DATA_MAX_IMSI = 20; // # of items
+      var DATA_MAX_IMSI = 10; // # of items
       var SORT_ITEMS_BY = 'age'; // or 'imsi'
 
-      var MEAS_TIMEOUT = 2; // seconds
+      var MEAS_TIMEOUT = 4; // seconds
 
       var xScale = d3.scale.linear()
         .domain([MINPWR, MAXPWR])
@@ -130,38 +138,7 @@
       var data = [];
       var selected_imsi = 0;
 
-      /*
-      {
-         "imsi" : "262420916111624",
-         "time" : 1435146009,
-         "scenario" : "",
-         "name" : "",
-
-         "meas_rep" : {
-            "L1_TA" : 2,
-            "NUM_NEIGH" : 0,
-            "NR" : 35,
-            "L1_MS_PWR" : 33,
-            "BS_POWER" : 0,
-            "L1_FPC" : false,
-            "NEIGH" : [],
-
-            "DL_MEAS" : {
-               "RXQ-SUB" : 0,
-               "RXQ-FULL" : 0,
-               "RXL-SUB" : -71,
-               "RXL-FULL" : -71
-            },
-
-            "UL_MEAS" : {
-               "RXQ-SUB" : 0,
-               "RXQ-FULL" : 0,
-               "RXL-SUB" : -47,
-               "RXL-FULL" : -47
-            }
-         }
-      }
-      */
+      var arfcn=[242,246,249,251]
 
       function paramMaxItems(new_value) {
         DATA_MAX_IMSI = parseInt(new_value);
@@ -254,7 +231,7 @@
           .attr("class", "data-row");
 
         ['name', 'imsi', 'chan-type', 'chan-id', 'duration', 'age', 'direction',
-         'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(k) {
+         'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR', 'N0', 'N1', 'N2', 'N3'].forEach(function(k) {
           tr.append("div")
             .attr("class", "cell")
             .attr("id", "meas-" + k);
@@ -338,6 +315,20 @@
           cur_el.select('#meas-' + id)
             .text(function(d) { return el.meas_rep[id]; })
         });
+
+	['N0', 'N1', 'N2', 'N3'].forEach(function(id) {
+	  cur_el.select('#meas-' + id).text(function(d) {
+			n=d.meas_rep.NEIGH
+			for (key in n) {
+			 for (i = 0; i < arfcn.length; i++) { 
+      			  if (n[key].ARFCN == arfcn[parseInt(id.substr(1))]) return n[key].POWER
+			 }
+ 			}
+ 			return 'X'
+		}) 
+	})
+
+
       }
 
 
