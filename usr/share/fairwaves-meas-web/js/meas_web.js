@@ -193,7 +193,7 @@ function update_data_row(el, i) {
   });
 
   for (i=0; i<10; i++) {
-    L = '-110';
+    L = '--';
     A = '';
     if (el.meas_rep['NEIGH'][i] != undefined) {
       L = el.meas_rep['NEIGH'][i]['POWER'];
@@ -203,11 +203,10 @@ function update_data_row(el, i) {
       .html(function(d) { 
         return "<span class='arfcn'>ARFCN "+A+"</span>"+" <span class='level'>"+L+"</span>"; 
       })
-      .style("display", i < max_neigh ? "block" : "none")
+      .style("display", L != '--' ? "block" : "none")
       .style("margin-bottom", i == max_neigh-1 ? "12px" : "0px")
       .interrupt()
       .transition()
-      .duration(el.age === 0 ? 250 : 0)
       .style("width", function(d) {return Math.abs(Math.round(xScale(L))) + 'px'});
   }
 
@@ -237,7 +236,7 @@ function format_data_row(data_row) {
       .attr("id", "meas-" + k.toLowerCase());
   });
 
-  $('#meas-direction').html("UL<br/>DL");
+  tr.select('#meas-direction').html("UL<br/>DL");
 
   var bar_tr = tr.select('#meas-level')
     .attr("style", 'width: ' + (MAXW + 20) + 'px')
