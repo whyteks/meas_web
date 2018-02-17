@@ -1,7 +1,15 @@
 
+function includeBTS(value) {
+    DATA_INCLUDE_BTS=value;
+}
+
+function includeChanType(value) {
+    DATA_INCLUDE_CHAN=value;
+}
+
 function paramMaxItems(new_value) {
-        DATA_MAX_IMSI = parseInt(new_value);
-      }
+    DATA_MAX_IMSI = parseInt(new_value);
+}
 
 function paramSortBy(new_value) {
   d3.select('#' + SORT_ITEMS_BY)
@@ -46,6 +54,68 @@ function show_last_time(t) {
     $('#last_time').html(formattedTime);
 }
 
+function update_data(new_row) {
+  
+  var default_values = {
+    "RXQ-SUB" : 0,
+    "RXQ-FULL" : 0,
+    "RXL-SUB" : MINPWR,
+    "RXL-FULL" : MINPWR
+  };
+
+  show_last_time(new_row.time * 1000)
+  
+  if (new_row && new_row.meas_rep &&
+         (new_row.meas_rep.DL_MEAS || new_row.meas_rep.UL_MEAS)) {
+    var report=new_row.meas_rep;
+    var info=new_row.chan_info;
+    if (report.NUM_NEIGH > max_neigh ) { max_neigh = report.NUM_NEIGH; }
+    rp = info
+    if (DATA_INCLUDE_BTS != '_' && DATA_INCLUDE_BTS != info.bts_nr ) {
+      return;
+    }
+    if (DATA_INCLUDE_CHAN != '_' && info.pchan_type.indexOf(DATA_INCLUDE_CHAN) === -1 ) {
+      return;
+    }
+
+    var cur_idx = null;
+    data.forEach(function(d, i) {
+      if (new_row['imsi'] === d['imsi']) {
+        cur_idx = i;
+      }
+    });
+
+    ['DL_MEAS', 'UL_MEAS'].forEach(function(link_type) {
+      if (!report[link_type]) { report[link_type] = default_values; }
+    });
+
+    new_row['age'] = 0;
+    new_row.active = true;
+    new_row.purge = false;
+    if (cur_idx === null) {
+      new_row['first_report'] = new_row['time'];
+      new_row['duration'] = 0;
+      data.push(new_row);
+    } else {
+      NR_old = data[cur_idx]['meas_rep']['NR'];
+      NR_new = new_row['meas_rep']['NR'];
+      // HACK: Guess old channel vs new chanel by NR.
+      //       NR rolls at 255, plus some reports may be lost,
+      //       so we can't detect new channels reliably.
+      //       A proper way of doing this would be to pass some
+      //       kind of channel ID in the meas_report structure.
+      NR_rolled = NR_new < 2 && NR_old > 253;
+      if (NR_old > NR_new && !NR_rolled) {
+        new_row['first_report'] = new_row['time'];
+      } else {
+        new_row['first_report'] = data[cur_idx]['first_report'];
+      }
+      new_row['duration'] = new_row['time']-new_row['first_report'];
+      data[cur_idx] = new_row;
+    }
+  };
+}
+
 function sort_data() {
   data.sort(function(a,b) {
     if (a.active && !b.active) {
@@ -77,6 +147,7 @@ function sort_data() {
 
 function trim_data() {
   data = data.slice(0, DATA_MAX_IMSI);
+  data = data.filter(function(i) {return !i.purge} );
 }
 
 function update_reports() {
@@ -91,7 +162,6 @@ function update_reports() {
 
   imsis.exit().remove();
 }
-
 
 function update_data_row(el, i) {  
   var cur_el = d3.select(this)
@@ -153,7 +223,6 @@ function update_data_row(el, i) {
 
   cur_el.select('#meas-neigh')
       .text(function(d) { return d.meas_rep['NUM_NEIGH']; });
-
 }
 
 function format_data_row(data_row) {
@@ -190,71 +259,19 @@ function format_data_row(data_row) {
   return true;
 }
 
-function refresh_data()
-      {
-        data.forEach(function(v, i) {
-          data[i]['age'] += 1;
-          if (data[i]['age'] > MEAS_TIMEOUT) {
-            data[i]['active'] = false;
-          }
-        });
+function refresh_data() {
+  data.forEach(function(v, i) {
+    data[i]['age'] += 1;
+    if (data[i]['age'] > MEAS_TIMEOUT) {
+      data[i]['active'] = false;
+    }
+    if (data[i]['age'] > MEAS_PURGE_TIMEOUT) {
+      data[i]['purge'] = true;
+    }
+  });
 
-        return true;
-      }
+  return true;
+}
 
       
-function update_data(new_row) {
-  
-  var default_values = {
-    "RXQ-SUB" : 0,
-    "RXQ-FULL" : 0,
-    "RXL-SUB" : MINPWR,
-    "RXL-FULL" : MINPWR
-  };
 
-  show_last_time(new_row.time * 1000)
-  
-  
-  if (new_row && new_row['meas_rep'] &&
-         (new_row['meas_rep']['DL_MEAS'] || new_row['meas_rep']['UL_MEAS'])) {
-    var report=new_row['meas_rep'];
-  
-    if (new_row['meas_rep']['NUM_NEIGH'] > max_neigh ) {
-      max_neigh = new_row['meas_rep']['NUM_NEIGH'];
-    }
-    var cur_idx = null;
-    data.forEach(function(d, i) {
-      if (new_row['imsi'] === d['imsi']) {
-        cur_idx = i;
-      }
-    });
-
-    ['DL_MEAS', 'UL_MEAS'].forEach(function(link_type) {
-      if (!report[link_type]) { report[link_type] = default_values; }
-    });
-
-    new_row['age'] = 0;
-    new_row['active'] = true;
-    if (cur_idx === null) {
-      new_row['first_report'] = new_row['time'];
-      new_row['duration'] = 0;
-      data.push(new_row);
-    } else {
-      NR_old = data[cur_idx]['meas_rep']['NR'];
-      NR_new = new_row['meas_rep']['NR'];
-      // HACK: Guess old channel vs new chanel by NR.
-      //       NR rolls at 255, plus some reports may be lost,
-      //       so we can't detect new channels reliably.
-      //       A proper way of doing this would be to pass some
-      //       kind of channel ID in the meas_report structure.
-      NR_rolled = NR_new < 2 && NR_old > 253;
-      if (NR_old > NR_new && !NR_rolled) {
-        new_row['first_report'] = new_row['time'];
-      } else {
-        new_row['first_report'] = data[cur_idx]['first_report'];
-      }
-      new_row['duration'] = new_row['time']-new_row['first_report'];
-      data[cur_idx] = new_row;
-    }
-  };
-}
