@@ -1,89 +1,9 @@
 <html>
   <head>
+    <script src="./js/jquery-3.3.1.min.js"></script>
     <script src="./js/d3.min.js"></script>
-    <style type="text/css">
-
-      .chart div {
-        font: 11px sans-serif;
-        text-align: right;
-        padding: 4px;
-        color: white;
-      }
-
-      .uplink {
-        background-color: steelblue;
-      }
-
-      .data-row-inactive .bar {
-        opacity: 0.7;
-        filter: grayscale(70%);
-        -webkit-filter: grayscale(70%);
-        -webkit-transition: -webkit-filter 0.5s, opacity 2s;
-        transition: filter 0.5s, opacity 2s;
-      }
-
-      .downlink {
-        background-color: navy;
-        margin-bottom: 15px;
-      }
-
-      .sortby {
-        cursor: hand;
-        color: navy;
-      }
-
-      .sortby-active {
-        opacity: 0.8;
-      }
-
-      .sortby-inactive {
-        opacity: 0.2;
-      }
-
-      .table {
-        font: 15px sans-serif;
-        display: table;
-        border-collapse: collapse;
-      }
-
-      .table-title
-      {
-        display: table-caption;
-        text-align: center;
-        font-weight: bold;
-        font-size: larger;
-      }
-
-      .table-heading
-      {
-        display: table-row;
-        font-weight: bold;
-        text-align: center;
-        border-bottom: solid transparent 10px;
-      }
-
-      .data-row {
-        display: table-row;
-      }
-
-      .data-row:nth-child(even) {
-        background-color: #f8f8f8;
-      }
-
-      .row-selected {
-        background-color: #ffffcc !important;
-        font-weight: bold;
-      }
-
-
-      .cell {
-        display: table-cell;
-        padding-left: 5px;
-        padding-right: 5px;
-      }
-
-
-    </style>
+    <script src="./js/meas_web.js"></script>
+    <link rel="stylesheet" type="text/css" href="meas_web.css">  
   </head>
   <body>
       <div>
@@ -97,6 +17,7 @@
     <div class="meas table">
       <div class="table-title">
         <h3>Signal strength measurements</h3>
+        <div id="last_time"></div>
       </div>
       <div class="table-heading">
         <div class="cell"><p>Name</p></div>
@@ -104,304 +25,59 @@
         <div class="cell"><p>Type</p></div>
         <div class="cell"><p>Channel</p></div>
         <div class="cell"><p>Duration</p></div>
-        <div class="cell sortby" onClick="paramSortBy('age');"><p><small id="age" class="sortby-active">▼</small>Age</p></div>
+        <div class="cell sortby" onClick="paramSortBy('age');"><p><small id="age" class="
+        sortby-active">▼</small>Age</p></div>
+        <div class="cell"><p>NR</p></div>
         <div class="cell"><p> </p></div>
-        <div class="cell"><p>Signal strength</p></div>
         <div class="cell"><p>Q</p></div>
+        <div class="cell"><p>Signal strength</p></div>
         <div class="cell"><p>PWR</p></div>
         <div class="cell"><p>TA</p></div>
-        <div class="cell"><p>NR</p></div>
-	<div class="cell"><p>242</p></div>
-	<div class="cell"><p>246</p></div>
-	<div class="cell"><p>249</p></div>
-	<div class="cell"><p>251</p></div>
-
+        <div class="cell"><p>Neigh.</p></div>
+	
      </div>
     </div>
 
+<script language="javascript">
+  <!--
+  var MAXW = 300;
+  var MAXPWR = -45;
+  var MINPWR = -120;
 
-    <script language="javascript">
-      <!--
-      var MAXW = 300;
-      var MAXPWR = -45;
-      var MINPWR = -120;
+  var DATA_MAX_IMSI = 10; // # of items
+  var SORT_ITEMS_BY = 'age'; // or 'imsi'
 
-      var DATA_MAX_IMSI = 10; // # of items
-      var SORT_ITEMS_BY = 'age'; // or 'imsi'
+  var MEAS_TIMEOUT = 4; // seconds
 
-      var MEAS_TIMEOUT = 4; // seconds
+  var xScale = d3.scaleLinear()
+    .domain([MINPWR, MAXPWR])
+    .range([0, MAXW]);
 
-      var xScale = d3.scale.linear()
-        .domain([MINPWR, MAXPWR])
-        .range([0, MAXW]);
+  var data = [];
+  var selected_imsi = 0;
+  var max_neigh = 0
 
-      var data = [];
-      var selected_imsi = 0;
+document.addEventListener("DOMContentLoaded", function(event) {
+  var loc = window.location;
+  var ws = new WebSocket('ws://' + loc.host + '/');
+  ws.onmessage = function(event) {
+    var evt_data = event.data;
+    if (evt_data) {
+      update_data(JSON.parse(evt_data));
+      // data is now updated
+      // Sort the data, active first, 
+      sort_data();
+      trim_data();
+      update_reports();
+    }
+  };
 
-      var arfcn=[242,246,249,251]
+setInterval(function() {
+    refresh_data() && update_reports();
+  }, 1000);
+});      
 
-      function paramMaxItems(new_value) {
-        DATA_MAX_IMSI = parseInt(new_value);
-      }
-
-      function paramSortBy(new_value) {
-        d3.select('#' + SORT_ITEMS_BY)
-          .classed('sortby-active', false)
-          .classed('sortby-inactive', true);
-
-        d3.select('#' + new_value)
-          .classed('sortby-active', true)
-          .classed('sortby-inactive', false);
-
-        SORT_ITEMS_BY = new_value; //'age' or 'imsi'
-        sort_data();
-      }
-
-      // insert new or update existing IMSI entry
-      function update_data(new_row)
-      {
-        var default_values = {
-          "RXQ-SUB" : 0,
-          "RXQ-FULL" : 0,
-          "RXL-SUB" : MINPWR,
-          "RXL-FULL" : MINPWR
-        };
-
-        // Find an existing row with the same IMSI if it exists
-        // to update it. Otherwise we'll create a new entry.
-        if (new_row && new_row['meas_rep'] && (new_row['meas_rep']['DL_MEAS'] || new_row['meas_rep']['UL_MEAS'])) {
-          var cur_idx = null;
-          data.forEach(function(d, i) {
-            if (new_row['imsi'] === d['imsi']) {
-              cur_idx = i;
-            }
-          });
-
-          // DL and UL measurement elements are optional, so we set
-          // them to a resonable default if they are not present.
-          ['DL_MEAS', 'UL_MEAS'].forEach(function(link_type) {
-            if (!new_row['meas_rep'][link_type]) { new_row['meas_rep'][link_type] = default_values; }
-          });
-
-          // Set internal variables and update/insert new data row.
-          new_row['age'] = 0;
-          new_row['active'] = true;
-          if (cur_idx === null) {
-            new_row['first_report'] = new_row['time'];
-            new_row['duration'] = 0;
-            data.push(new_row);
-          } else {
-            NR_old = data[cur_idx]['meas_rep']['NR'];
-            NR_new = new_row['meas_rep']['NR'];
-            // HACK: Guess old channel vs new chanel by NR.
-            //       NR rolls at 255, plus some reports may be lost,
-            //       so we can't detect new channels reliably.
-            //       A proper way of doing this would be to pass some
-            //       kind of channel ID in the meas_report structure.
-            NR_rolled = NR_new < 2 && NR_old > 253;
-            if (NR_old > NR_new && !NR_rolled) {
-              new_row['first_report'] = new_row['time'];
-            } else {
-              new_row['first_report'] = data[cur_idx]['first_report'];
-            }
-            new_row['duration'] = new_row['time']-new_row['first_report'];
-            data[cur_idx] = new_row;
-          }
-        };
-      }
-
-
-      // increase age counter and remove stale data from data array
-      function refresh_data()
-      {
-        data.forEach(function(v, i) {
-          data[i]['age'] += 1;
-          if (data[i]['age'] > MEAS_TIMEOUT) {
-            data[i]['active'] = false;
-          }
-        });
-
-        return true;
-      }
-
-
-      function format_data_row(data_row)
-      {
-        var tr = data_row.append("div")
-          .attr("class", "data-row");
-
-        ['name', 'imsi', 'chan-type', 'chan-id', 'duration', 'age', 'direction',
-         'level', 'Q', 'L1_MS_PWR', 'L1_TA', 'NR', 'N0', 'N1', 'N2', 'N3'].forEach(function(k) {
-          tr.append("div")
-            .attr("class", "cell")
-            .attr("id", "meas-" + k);
-        });
-
-        tr.select('#meas-direction')
-          .html("UL<br/>DL");
-
-        var bar_tr = tr.select('#meas-level')
-          .attr("style", 'width: ' + (MAXW + 20) + 'px')
-          .classed("chart", true);
-
-        ['UL', 'DL'].forEach(function(k) {
-          bar_tr.append("div")
-            .attr("class", k === 'UL'? "uplink bar" : "downlink bar")
-            .attr("id", "meas-L-"+k);
-        });
-
-        return true;
-      }
-
-
-      function setSelected(imsi) {
-        d3.select('#imsi-' + selected_imsi)
-          .classed('row-selected', false);
-        selected_imsi = imsi;
-        d3.select('#imsi-' + selected_imsi)
-          .classed('row-selected', true);
-      }
-
-
-      function format_chan_id(d)
-      {
-        var chan_id = "bts "+d.chan_info['bts_nr']+
-                      " trx " +d.chan_info['trx_nr']+"<br/>"+
-                      "ts "+d.chan_info['ts_nr'];
-
-        // There is only one sub-slot in TCH/F
-        if (d.chan_info['pchan_type'] != "TCH/F")
-          chan_id += " ss "+d.chan_info['ss_nr'];
-
-        return chan_id
-      }
-
-
-      function update_data_row(el, i) {
-        var cur_el = d3.select(this)
-          .classed("data-row-active", function(d) { return d.active; })
-          .classed("data-row-inactive", function(d) { return !d.active; })
-          .classed("row-selected", function(d) { return selected_imsi === d.imsi; })
-          .attr("id", function(d) { return 'imsi-' + d.imsi; })
-          .on("click", function(d,i) { setSelected(d.imsi); });
-
-        ['name', 'imsi', 'duration', 'age'].forEach(function(id) {
-          cur_el.select('#meas-' + id)
-            .text(function(d) { return el[id]; })
-        });
-
-        cur_el.select("#meas-chan-id")
-          .html(function(d) { return d['chan_info']?format_chan_id(d):""; });
-
-        cur_el.select("#meas-chan-type")
-          .text(function(d) { return d['chan_info']?d.chan_info["lchan_type"]:""; });
-
-        ['UL', 'DL'].forEach(function(k) {
-          L = el.meas_rep[k+'_MEAS']['RXL-FULL'];
-          cur_el.select('#meas-L-'+k)
-            .interrupt()
-            .transition()
-            .duration(el.age === 0? 250 : 0)
-            .style("width", function(d) {return Math.abs(Math.round(xScale(L))) + 'px'})
-            .text(function(d) { return L; });
-        });
-
-        cur_el.select('#meas-Q')
-          .html(function(d) { return d.meas_rep['UL_MEAS']['RXQ-FULL'] +
-                                     "<br/>" +
-                                     d.meas_rep['DL_MEAS']['RXQ-FULL']});
-
-        ['L1_MS_PWR', 'L1_TA', 'NR'].forEach(function(id) {
-          cur_el.select('#meas-' + id)
-            .text(function(d) { return el.meas_rep[id]; })
-        });
-
-	['N0', 'N1', 'N2', 'N3'].forEach(function(id) {
-	  cur_el.select('#meas-' + id).text(function(d) {
-			n=d.meas_rep.NEIGH
-			for (key in n) {
-			 for (i = 0; i < arfcn.length; i++) { 
-      			  if (n[key].ARFCN == arfcn[parseInt(id.substr(1))]) return n[key].POWER
-			 }
- 			}
- 			return 'X'
-		}) 
-	})
-
-
-      }
-
-
-      function update_reports()
-      {
-        var imsis = d3.select(".meas")
-          .selectAll(".data-row")
-          .data(data)
-
-        imsis.enter()
-          .call(format_data_row);
-
-        imsis.each(update_data_row);
-
-        imsis.exit().remove();
-      }
-
-
-      function sort_data()
-      {
-        data.sort(function(a,b) {
-          if (a.active && !b.active) {
-            return -1;
-          }
-          if (!a.active && b.active) {
-            return 1;
-          }
-          if (a.active && b.active) {
-            if (a.first_report === b.first_report) {
-              return d3.ascending(a.imsi, b.imsi);
-            } else {
-              return d3.descending(a.first_report, b.first_report);
-            }
-          }
-          if (!a.active && !b.active) {
-            if (SORT_ITEMS_BY === 'age') {
-              if (a.time === b.time) {
-                return d3.ascending(a.imsi, b.imsi);
-              } else {
-                return d3.descending(a.time, b.time);
-              }
-            } else {
-              return d3.ascending(a.imsi, b.imsi);
-            }
-          }
-        });
-      }
-
-
-      function trim_data()
-      {
-        data = data.slice(0, DATA_MAX_IMSI);
-      }
-
-
-      document.addEventListener("DOMContentLoaded", function(event) {
-        var loc = window.location;
-        var ws = new WebSocket('ws://' + loc.host + '/');
-        ws.onmessage = function(event) {
-          var evt_data = event.data;
-          if (evt_data) {
-            update_data(JSON.parse(evt_data));
-            sort_data();
-            trim_data();
-            update_reports();
-          }
-        };
-
-        setInterval(function() {
-          refresh_data() && update_reports();
-        }, 1000);
-      });
-    // -->
+ // -->
     </script>
   </body>
 </html>

@@ -1,0 +1,103 @@
+.chart div {
+  font: 11px sans-serif;
+  text-align: right;
+  padding: 4px;
+  color: white;
+  height: 12px;
+
+}
+
+.neighbour {
+  position: relative;
+  background-color: green;
+  height: 11px !important;
+  border-style: inset;
+  border-width: 1px;
+  border-color: #80808040;
+}
+
+.hidden {
+  display: none;
+}
+
+.uplink {
+  background-color: steelblue;
+}
+
+.data-row-inactive .bar {
+  opacity: 0.7;
+  filter: grayscale(70%);
+  -webkit-filter: grayscale(70%);
+  -webkit-transition: -webkit-filter 0.5s, opacity 2s;
+  transition: filter 0.5s, opacity 2s;
+}
+
+.downlink {
+  background-color: navy;
+  margin-bottom: 2px;
+}
+
+.sortby {
+  cursor: hand;
+  color: navy;
+}
+
+.sortby-active {
+  opacity: 0.8;
+}
+
+.sortby-inactive {
+  opacity: 0.2;
+}
+
+.table {
+  font: 15px sans-serif;
+  display: table;
+  border-collapse: collapse;
+}
+
+.table-title
+{
+  display: table-caption;
+  text-align: center;
+  font-weight: bold;
+  font-size: larger;
+}
+
+.table-heading
+{
+  display: table-row;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: solid transparent 10px;
+}
+
+.data-row {
+  display: table-row;
+}
+
+.data-row:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+.row-selected {
+  background-color: #ffffcc !important;
+  font-weight: bold;
+}
+
+
+.cell {
+  display: table-cell;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.arfcn {
+  position: absolute;
+  left: 0;
+  text-align: left;
+  display: block;
+}
+.level {
+
+}
