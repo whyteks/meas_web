@@ -1,3 +1,0 @@
-1. Create interface between log tailer and websocketd to filter messages based on a matching string. Filter string should be read from the STDIN.
-https://github.com/six8/pytailer
-https://github.com/seb-m/pyinotify
