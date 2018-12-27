@@ -1,0 +1,13 @@
+#!/bin/bash
+logfile=/home/whytek/meas_web/json
+staticdir=/home/whytek/meas_web/meas-web
+
+exec 2>&1
+
+#echo "Waiting for meas service to run"
+#sv start meas_json || exit 1
+
+echo "Running websocketd"
+exec /usr/bin/websocketd --staticdir=$staticdir --port=8080 /home/whytek/meas_web/json-feed.sh
+
+# tail -F $logfile
