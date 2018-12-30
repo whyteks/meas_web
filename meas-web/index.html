@@ -9,8 +9,17 @@
   </head>
   <body>
       <div class="ddmenu">
+        display timeout:
+        <select name="dto" id="dto" onchange="paramDTO(this.value)">
+          <option value="1">1</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="60">60</option>
+        </select>
+
         maximum items:
         <select name="maxitems" id="maxitems" onchange="paramMaxItems(this.value)">
+          <option value="5">5</option>
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="50">50</option>
@@ -44,7 +53,7 @@
       </div>
       <div class="table-heading">
         <div class="cell"><p>Name</p></div>
-        <div class="cell sortby" onClick="paramSortBy('imsi');"><p><small id="imsi" class="sortby-inactive">▼</small>IMSI</p></div>
+        <div class="cell sortby" onClick="paramSortBy('imsi');"><p><small id="imsi" class="sortby-active">▼</small>IMSI</p></div>
         <div class="cell"><p>Type</p></div>
         <div class="cell"><p>Channel</p></div>
         <div class="cell sortby" onClick="paramSortBy('duration');"><p><small id="duration" class="sortby-inactive">▼</small>Duration</p></div>
@@ -67,12 +76,12 @@
   var rp
 
   var DATA_MAX_IMSI = 10; // # of items
-  var SORT_ITEMS_BY = 'duration'; // or 'imsi'
+  var SORT_ITEMS_BY = 'imsi'; // or 'imsi'
   var DATA_INCLUDE_BTS = '_';
   var DATA_INCLUDE_CHAN = '_';
 
   var MEAS_TIMEOUT = 2; // seconds
-  var MEAS_PURGE_TIMEOUT = 6; // seconds
+  var MEAS_PURGE_TIMEOUT = 10; // seconds
 
   var xScale = d3.scaleLinear()
     .domain([MINPWR, MAXPWR])
@@ -82,6 +91,26 @@
   var selected_imsi = 0;
   var max_neigh = 0
 
+  var bts_name = {};
+
+  bts_name[0]='H4 LOC (Clarke)'
+  bts_name[1]='H2'
+  bts_name[2]='CCL neels'
+  bts_name[3]='H5 Disco'
+  bts_name[4]='H3 ChaosWest'
+  bts_name[5]='C-BASE'
+  bts_name[6]='GlasH'
+  bts_name[7]='CCL 1F'
+  bts_name[8]='H3 no bord'
+  bts_name[9]='Adams'
+
+  $(function(){
+    paramDTO($('#dto').val())
+    paramMaxItems($('#maxitems').val())
+    includeBTS($('#includebts').val())  
+    includeChanType($('#includechan').val())
+  });
+  
   document.addEventListener("DOMContentLoaded", function(event) {
     var loc = window.location;
     var ws = new WebSocket('ws://' + loc.host + '/');
@@ -100,9 +129,7 @@
     }, 1000);
   });
   // -->
-  paramMaxItems($('#maxitems').val())
-  includeBTS($('#includebts').val())  
-  includeChanType($('#includeChanType').val())
+
 </script>
 
   </body>

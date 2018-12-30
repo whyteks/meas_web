@@ -1,4 +1,4 @@
 #!/bin/sh
 exec 2>&1
-exec /usr/bin/websocketd --staticdir=/home/whytek/meas_web/meas-web --port=8080 /usr/bin/stdbuf -oL /usr/bin/meas_json
+exec /usr/bin/websocketd --staticdir=/home/whytek/meas_web/meas-web --port=8080 tail -F /tmp/meas_json_log
 

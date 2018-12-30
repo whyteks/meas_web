@@ -30,7 +30,7 @@ html body {
 }
 
 .data-row-inactive .bar {
-  opacity: 0.4;
+  opacity: 0.7;
   filter: grayscale(70%);
   -webkit-filter: grayscale(70%);
   -webkit-transition: -webkit-filter 0.5s, opacity 2s;
@@ -57,7 +57,7 @@ html body {
 
 .ddmenu {
   font-family: courier;
-  width: 650px;
+  width: 950px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -116,9 +116,9 @@ div.meas  {
 
 .arfcn {
   position: absolute;
-  left: -85px;
+  left: -185px;
   top: 0px;
-  width: 70px;
+  width: 170px;
   text-align: right;
   display: block;
   background-color: green;

@@ -11,6 +11,10 @@ function paramMaxItems(new_value) {
     DATA_MAX_IMSI = parseInt(new_value);
 }
 
+function paramDTO(new_value) {
+    MEAS_PURGE_TIMEOUT = parseInt(new_value);
+}
+
 function paramSortBy(new_value) {
   d3.select('#' + SORT_ITEMS_BY)
     .classed('sortby-active', false)
@@ -33,14 +37,15 @@ function setSelected(imsi) {
 }
 
 function format_chan_id(d) {
-  var chan_id = "BTS <span style='color:red'>"+d.chan_info['bts_nr']+
-                "</span> TRX <span style='color:darkgreen'>" +d.chan_info['trx_nr']
-                +"</span><br/>"+
-                "TS "+d.chan_info['ts_nr'];
+  var chan_id = "<span style='color:red;font-weight:bold'>"+bts_name[d.chan_info['bts_nr']]+
+                "</span> BTS("+d.chan_info['bts_nr']+
+                ")TRX(<span style='color:darkgreen'>" +d.chan_info['trx_nr']
+                +")</span>"+
+                "TS("+d.chan_info['ts_nr']+")";
 
   // There is only one sub-slot in TCH/F
   if (d.chan_info['pchan_type'].indexOf("TCH/F") == -1)
-    chan_id += " SS "+d.chan_info['ss_nr'];
+    chan_id += " SS("+d.chan_info['ss_nr']+")";
 
   return chan_id
 }
@@ -122,9 +127,6 @@ function update_data(new_row) {
 
 function sort_data() {
   data.sort(function(a,b) {
-
-
-
 
     if (a.active && !b.active) {
       return -1;
@@ -215,10 +217,11 @@ function update_data_row(el, i) {
   for (i=0; i<10; i++) {
     L = '--';
     A = '';
+    B = '?';
     if (el.meas_rep['NEIGH'][i] != undefined) {
       L = el.meas_rep['NEIGH'][i]['POWER'];
       A = el.meas_rep['NEIGH'][i]['ARFCN'];
-      B = el.meas_rep['NEIGH'][i]['BSIC'];
+      B = bts_name[el.meas_rep['NEIGH'][i]['BSIC']];
     }
     cur_el.select('#neighbour'+i)
       .html(function(d) { 
