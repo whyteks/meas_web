@@ -37,10 +37,11 @@ function setSelected(imsi) {
 }
 
 function format_chan_id(d) {
-  var chan_id = "BTS <span style='color:red'>"+d.chan_info['bts_nr']+
-                "</span> TRX <span style='color:darkgreen'>" +d.chan_info['trx_nr']
-                +"</span><br/>"+
-                "TS "+d.chan_info['ts_nr'];
+  var chan_id = "<span style='color:red;font-weight:bold'>"+bts_name[d.chan_info['bts_nr']]+
+                "</span> BTS("+d.chan_info['bts_nr']+
+                ")TRX(<span style='color:darkgreen'>" +d.chan_info['trx_nr']
+                +")</span>"+
+                "TS("+d.chan_info['ts_nr']+")";
 
   // There is only one sub-slot in TCH
   if (d.chan_info['pchan_type'].indexOf("TCH") == -1)

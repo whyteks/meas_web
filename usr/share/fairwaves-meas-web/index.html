@@ -91,6 +91,19 @@
   var selected_imsi = 0;
   var max_neigh = 0
 
+  var bts_name = {};
+
+  bts_name[0]='Main BTS'
+  bts_name[1]=''
+  bts_name[2]=''
+  bts_name[3]=''
+  bts_name[4]=''
+  bts_name[5]=''
+  bts_name[6]=''
+  bts_name[7]=''
+  bts_name[8]=''
+  bts_name[9]=''
+
   document.addEventListener("DOMContentLoaded", function(event) {
     var loc = window.location;
     var ws = new WebSocket('ws://' + loc.host + '/');
