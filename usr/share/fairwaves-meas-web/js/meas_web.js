@@ -11,6 +11,10 @@ function paramMaxItems(new_value) {
     DATA_MAX_IMSI = parseInt(new_value);
 }
 
+function paramDTO(new_value) {
+    MEAS_PURGE_TIMEOUT = parseInt(new_value);
+}
+
 function paramSortBy(new_value) {
   d3.select('#' + SORT_ITEMS_BY)
     .classed('sortby-active', false)
