@@ -118,12 +118,16 @@ function update_data(new_row) {
 
 function sort_data() {
   data.sort(function(a,b) {
+
     if (a.active && !b.active) {
       return -1;
     }
     if (!a.active && b.active) {
       return 1;
     }
+
+    return d3.ascending(a.imsi,b.imsi);
+
     if (a.active && b.active) {
       if (a.first_report === b.first_report) {
         return d3.ascending(a.imsi, b.imsi);

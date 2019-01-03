@@ -53,12 +53,11 @@
       </div>
       <div class="table-heading">
         <div class="cell"><p>Name</p></div>
-        <div class="cell sortby" onClick="paramSortBy('imsi');"><p><small id="imsi" class="sortby-inactive">▼</small>IMSI</p></div>
+        <div class="cell sortby" onClick="paramSortBy('imsi');"><p><small id="imsi" class="sortby-active">▼</small>IMSI</p></div>
         <div class="cell"><p>Type</p></div>
         <div class="cell"><p>Channel</p></div>
-        <div class="cell"><p>Duration</p></div>
-        <div class="cell sortby" onClick="paramSortBy('age');"><p><small id="age" class="
-        sortby-active">▼</small>Age</p></div>
+        <div class="cell sortby" onClick="paramSortBy('duration');"><p><small id="duration" class="sortby-inactive">▼</small>Duration</p></div>
+        <div class="cell sortby" onClick="paramSortBy('age');"><p><small id="age" class="sortby-inactive">▼</small>Age</p></div>
         <div class="cell"><p>NR</p></div>
         <div class="cell"><p> </p></div>
         <div class="cell"><p>Q</p></div>
@@ -77,7 +76,7 @@
   var rp
 
   var DATA_MAX_IMSI = 10; // # of items
-  var SORT_ITEMS_BY = 'age'; // or 'imsi'
+  var SORT_ITEMS_BY = 'imsi'; // or 'imsi'
   var DATA_INCLUDE_BTS = '_';
   var DATA_INCLUDE_CHAN = '_';
 
