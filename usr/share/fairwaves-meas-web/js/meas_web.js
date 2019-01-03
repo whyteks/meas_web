@@ -208,13 +208,15 @@ function update_data_row(el, i) {
   for (i=0; i<10; i++) {
     L = '--';
     A = '';
+    B = '?';
     if (el.meas_rep['NEIGH'][i] != undefined) {
       L = el.meas_rep['NEIGH'][i]['POWER'];
       A = el.meas_rep['NEIGH'][i]['ARFCN'];
+      B = bts_name[el.meas_rep['NEIGH'][i]['BSIC']];
     }
     cur_el.select('#neighbour'+i)
       .html(function(d) { 
-        return "<span class='arfcn'>ARFCN "+A+"</span>"+" <span class='level'>"+L+"</span>"; 
+        return "<span class='arfcn'>B: "+B+" A: "+A+"</span>"+" <span class='level'>"+L+"</span>"; 
       })
       .style("display", L != '--' ? "block" : "none")
       .style("margin-bottom", i == max_neigh-1 ? "12px" : "0px")
