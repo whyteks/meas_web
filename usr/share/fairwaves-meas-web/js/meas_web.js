@@ -43,9 +43,9 @@ function format_chan_id(d) {
                 +")</span>"+
                 "TS("+d.chan_info['ts_nr']+")";
 
-  // There is only one sub-slot in TCH
-  if (d.chan_info['pchan_type'].indexOf("TCH") == -1)
-    chan_id += " SS "+d.chan_info['ss_nr'];
+  // There is only one sub-slot in TCH/F
+  if (d.chan_info['pchan_type'].indexOf("TCH/F") == -1)
+    chan_id += " SS("+d.chan_info['ss_nr']+")";
 
   return chan_id
 }
