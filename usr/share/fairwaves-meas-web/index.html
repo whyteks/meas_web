@@ -104,6 +104,13 @@
   bts_name[8]=''
   bts_name[9]=''
 
+  $(function(){
+    paramDTO($('#dto').val())
+    paramMaxItems($('#maxitems').val())
+    includeBTS($('#includebts').val())
+    includeChanType($('#includechan').val())
+  });
+
   document.addEventListener("DOMContentLoaded", function(event) {
     var loc = window.location;
     var ws = new WebSocket('ws://' + loc.host + '/');
