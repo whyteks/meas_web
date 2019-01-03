@@ -9,23 +9,39 @@
   </head>
   <body>
       <div class="ddmenu">
+        display timeout:
+        <select name="dto" id="dto" onchange="paramDTO(this.value)">
+          <option value="1">1</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="60">60</option>
+        </select>
+
         maximum items:
         <select name="maxitems" id="maxitems" onchange="paramMaxItems(this.value)">
-          <option value="10" selected >10</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
           <option value="20">20</option>
           <option value="50">50</option>
         </select>
         show BTS:
         <select name="includebts" id="includebts" onchange="includeBTS(this.value)">
-          <option value="_" selected >ALL</option>
+          <option value="_">ALL</option>
           <option value="0">BTS 0</option>
           <option value="1">BTS 1</option>
           <option value="2">BTS 2</option>
           <option value="3">BTS 3</option>
+          <option value="4">BTS 4</option>
+          <option value="5">BTS 5</option>
+          <option value="6">BTS 6</option>
+          <option value="7">BTS 7</option>
+          <option value="8">BTS 8</option>
+          <option value="9">BTS 9</option>
+
         </select>
         show channel:
         <select name="includechan" id="includechan" onchange="includeChanType(this.value)">
-          <option value="_" selected >ALL</option>
+          <option value="_">ALL</option>
           <option value="SDCCH">SDCCH</option>
           <option value="TCH">TCH</option>
         </select>
