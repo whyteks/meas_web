@@ -82,6 +82,10 @@ function update_data(new_row) {
     if (DATA_INCLUDE_CHAN != '_' && info.pchan_type.indexOf(DATA_INCLUDE_CHAN) === -1 ) {
       return;
     }
+    if (new_row['imsi'] == '') {
+        _ci = new_row['chan_info']
+        new_row['imsi'] = "UnKnown-" + _ci['bts_nr'] + "-" + _ci['trx_nr'] + "-" +  _ci['ts_nr'] + "-" + _ci['ss_nr']
+    }
 
     var cur_idx = null;
     data.forEach(function(d, i) {
