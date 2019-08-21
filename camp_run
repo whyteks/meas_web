@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/local/bin/websocketd --staticdir=/var/www/meas-web --port=8080 stdbuf -oL meas_json
